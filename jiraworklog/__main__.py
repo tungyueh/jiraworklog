@@ -1,11 +1,8 @@
 import argparse
-import getpass
 from typing import List
 
-from requests.utils import get_netrc_auth
-from jira import JIRA, Issue
-
-URL = str
+from jiraworklog.issue import Issue
+from jiraworklog.jira import make_jira
 
 
 def main():
@@ -23,19 +20,9 @@ def main():
 def total_time_spent(issues: List[Issue]) -> int:
     total_seconds = 0
     for issue in issues:
-        if issue.fields.timespent:
-            total_seconds += issue.fields.timespent
+        if issue.time_spent_in_second:
+            total_seconds += issue.time_spent_in_second
     return total_seconds
-
-
-def make_jira(jira_server: URL) -> JIRA:
-    if not get_netrc_auth(jira_server):
-        user = input("Jira Username:")
-        password = getpass.getpass()
-        jira = JIRA(jira_server, basic_auth=(user, password))
-    else:
-        jira = JIRA(jira_server)
-    return jira
 
 
 if __name__ == '__main__':
