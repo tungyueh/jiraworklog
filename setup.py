@@ -6,5 +6,8 @@ setup(
     packages=find_packages(),
     author='Tung-Yueh Lin',
     author_email='tungyuehlin@gmail.com',
-    description='Calculate work log from JIRA issue'
+    description='Calculate work log from JIRA issue',
+    extras_require={
+        'travis': ['pycodestyle', 'pylint', 'mypy']
+    },
 )
