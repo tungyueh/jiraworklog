@@ -3,5 +3,9 @@ class Issue:
         self._raw_issue = raw_issue
 
     @property
+    def key(self):
+        return self._raw_issue.key
+
+    @property
     def time_spent_in_second(self):
         return self._raw_issue.fields.timespent
