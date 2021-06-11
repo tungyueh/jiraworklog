@@ -8,5 +8,7 @@ Calculate work log from JIRA issue
 python -m jiraworklog \<JIRA Server URL\> \<JQL\>
 ###  Find total time spent in hours in active sprint
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> -b \<Board ID\>
+###  Find total time spent in hours in certain sprint
+python -m jiraworklog \<JIRA Server URL\> \<JQL\> -s \<Sprint ID\>
 ## netrc file format
 machine \<hostname\> login \<username\> password \<password\>
