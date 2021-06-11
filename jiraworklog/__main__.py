@@ -10,6 +10,7 @@ def main():
     parser.add_argument('server_url', help='Server URL')
     parser.add_argument('jql', help='Jira Query Language')
     parser.add_argument('-b', dest='board_id', help='Board ID')
+    parser.add_argument('-s', dest='sprint_id', help='Sprint ID')
 
     args = parser.parse_args()
 
@@ -20,6 +21,9 @@ def main():
         if not sprint:
             print('No active sprint')
             return
+        total_seconds = time_spent_in_sprint(issues, jira, sprint)
+    elif args.sprint_id:
+        sprint = jira.get_sprint(args.sprint_id)
         total_seconds = time_spent_in_sprint(issues, jira, sprint)
     else:
         total_seconds = total_time_spent(issues)
@@ -42,7 +46,7 @@ def issue_time_spent_in_sprint(issue, jira, sprint):
 
 
 def is_work_log_in_sprint(sprint, work_log):
-    return sprint.start_time <= work_log.logged_time <= sprint.end_time
+    return sprint.start_time <= work_log.logged_time <= (sprint.end_time+86400)
 
 
 def total_time_spent(issues: List[Issue]) -> int:

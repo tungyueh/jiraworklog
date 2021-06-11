@@ -42,6 +42,10 @@ class Jira:
         sprint_info = self._raw_jira.sprint_info(board_id, sprint_id)
         return sprint_info
 
+    def get_sprint(self, sprint_id: int) -> Sprint:
+        sprint = self._raw_jira.sprint(sprint_id)
+        return Sprint(sprint.raw)
+
 
 def make_jira(server_url: URL) -> Jira:
     if not get_netrc_auth(server_url):
