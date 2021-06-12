@@ -8,7 +8,9 @@ class Issue:
 
     @property
     def time_spent_in_second(self):
-        return self._raw_issue.fields.timespent
+        if self._raw_issue.fields.timespent:
+            return self._raw_issue.fields.timespent
+        return 0
 
     @property
     def assignee(self):
