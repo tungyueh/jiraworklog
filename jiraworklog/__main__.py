@@ -2,6 +2,7 @@ import argparse
 
 from jiraworklog.issues_worklog import IssuesWorkLog
 from jiraworklog.jira import make_jira
+from jiraworklog.sprint_worklog import SprintWorkLogs
 
 
 def main():
@@ -20,32 +21,13 @@ def main():
         if not sprint:
             print('No active sprint')
             return
-        total_seconds = time_spent_in_sprint(issues, jira, sprint)
+        total_seconds = SprintWorkLogs(jira, sprint, issues).compute()
     elif args.sprint_id:
         sprint = jira.get_sprint(args.sprint_id)
-        total_seconds = time_spent_in_sprint(issues, jira, sprint)
+        total_seconds = SprintWorkLogs(jira, sprint, issues).compute()
     else:
         total_seconds = IssuesWorkLog(issues).compute()
     print(f'Total time spent: {total_seconds / 3600} hour')
-
-
-def time_spent_in_sprint(issues, jira, sprint):
-    total_seconds = 0
-    for issue in issues:
-        total_seconds += issue_time_spent_in_sprint(issue, jira, sprint)
-    return total_seconds
-
-
-def issue_time_spent_in_sprint(issue, jira, sprint):
-    total_seconds = 0
-    for work_log in jira.work_logs(issue):
-        if is_work_log_in_sprint(sprint, work_log):
-            total_seconds += work_log.time_spent_in_seconds
-    return total_seconds
-
-
-def is_work_log_in_sprint(sprint, work_log):
-    return sprint.start_time <= work_log.logged_time <= (sprint.end_time+86400)
 
 
 if __name__ == '__main__':
