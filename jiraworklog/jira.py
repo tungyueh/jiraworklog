@@ -2,7 +2,7 @@ import getpass
 from typing import List, Optional, Dict
 
 from jira import JIRA
-from requests.utils import get_netrc_auth  # # type: ignore
+from requests.utils import get_netrc_auth  # type: ignore
 
 from jiraworklog.issue import Issue
 from jiraworklog.sprint import Sprint
