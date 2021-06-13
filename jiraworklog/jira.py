@@ -12,11 +12,8 @@ URL = str
 
 
 class Jira:
-    def __init__(self, server_url: URL, user=None, password=None):
-        if user and password:
-            self._raw_jira = JIRA(server_url, basic_auth=(user, password))
-        else:
-            self._raw_jira = JIRA(server_url)
+    def __init__(self, raw_jira):
+        self._raw_jira = raw_jira
 
     def search_issues(self, jql) -> List[Issue]:
         issues = []
@@ -51,5 +48,7 @@ def make_jira(server_url: URL) -> Jira:
     if not get_netrc_auth(server_url):
         user = input("Jira Username:")
         password = getpass.getpass()
-        return Jira(server_url, user, password)
-    return Jira(server_url)
+        raw_jira = JIRA(server_url, basic_auth=(user, password))
+    else:
+        raw_jira = JIRA(server_url)
+    return Jira(raw_jira)
