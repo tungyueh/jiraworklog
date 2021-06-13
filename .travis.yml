@@ -8,3 +8,4 @@ script:
   - pycodestyle jiraworklog
   - pylint jiraworklog
   - mypy jiraworklog
+  - pytest unittest

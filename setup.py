@@ -9,6 +9,6 @@ setup(
     description='Calculate work log from JIRA issue',
     install_requires=['requests', 'jira==2.0.0'],
     extras_require={
-        'travis': ['pycodestyle', 'pylint', 'mypy']
+        'travis': ['pycodestyle', 'pylint', 'mypy', 'pytest']
     },
 )
