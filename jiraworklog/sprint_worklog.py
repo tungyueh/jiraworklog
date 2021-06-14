@@ -3,6 +3,7 @@ from typing import List
 from jiraworklog.issue import Issue
 from jiraworklog.jira import Jira
 from jiraworklog.sprint import Sprint
+from jiraworklog.worklog import WorkLog
 
 
 class SprintWorkLogs:
@@ -14,12 +15,21 @@ class SprintWorkLogs:
     def compute(self) -> int:
         total_seconds = 0
         for issue in self._issues:
-            total_seconds += self._time_spent_in_sprint(issue)
+            work_logs = self._jira.work_logs(issue)
+            total_seconds = IssueInSprint(self._sprint,
+                                          work_logs).time_spent_in_second
         return total_seconds
 
-    def _time_spent_in_sprint(self, issue):
+
+class IssueInSprint:
+    def __init__(self, sprint: Sprint, work_logs: List[WorkLog]):
+        self._sprint = sprint
+        self._work_logs = work_logs
+
+    @property
+    def time_spent_in_second(self) -> int:
         total_seconds = 0
-        for work_log in self._jira.work_logs(issue):
+        for work_log in self._work_logs:
             if self._is_work_log_in_sprint(work_log):
                 total_seconds += work_log.time_spent_in_seconds
         return total_seconds
