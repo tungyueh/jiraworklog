@@ -1,4 +1,5 @@
 import argparse
+import time
 
 from jiraworklog.issues_worklog import IssuesWorkLog
 from jiraworklog.jira import make_jira
@@ -15,7 +16,11 @@ def main():
     args = parser.parse_args()
 
     jira = make_jira(args.server_url)
+    start_time = time.time()
+    print(f'Start search issues... "{args.jql}"')
     issues = jira.search_issues(args.jql)
+    search_time = time.time() - start_time
+    print(f'Search issues done. Spent time: {search_time} seconds')
     if args.board_id:
         sprint = jira.active_sprint(args.board_id)
         if not sprint:
