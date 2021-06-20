@@ -1,9 +1,10 @@
 import argparse
 import time
+from typing import List
 
-from jiraworklog.issues_worklog import IssuesWorkLog
-from jiraworklog.jira import make_jira
-from jiraworklog.sprint_worklog import SprintWorkLogs
+from jiraworklog.issue import Issue, IssueInterface, IssueInSprint
+from jiraworklog.jira import make_jira, Jira
+from jiraworklog.sprint import Sprint
 
 
 def main():
@@ -26,13 +27,23 @@ def main():
         if not sprint:
             print('No active sprint')
             return
-        total_seconds = SprintWorkLogs(jira, sprint, issues).compute()
+        time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
     elif args.sprint_id:
         sprint = jira.get_sprint(args.sprint_id)
-        total_seconds = SprintWorkLogs(jira, sprint, issues).compute()
+        time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
     else:
-        total_seconds = IssuesWorkLog(issues).compute()
+        time_spent_issues = issues
+    total_seconds = sum([i.time_spent_in_second for i in time_spent_issues])
     print(f'Total time spent: {total_seconds / 3600} hour')
+
+
+def make_issues_in_sprint(jira: Jira, sprint: Sprint, issues: List[Issue]) -> \
+        List[IssueInterface]:
+    issues_in_sprint: List[IssueInterface] = []
+    for issue in issues:
+        work_logs = jira.work_logs(issue)
+        issues_in_sprint.append(IssueInSprint(sprint, work_logs))
+    return issues_in_sprint
 
 
 if __name__ == '__main__':
