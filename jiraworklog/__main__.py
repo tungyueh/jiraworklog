@@ -22,14 +22,18 @@ def main():
     issues = jira.search_issues(args.jql)
     search_time = time.time() - start_time
     print(f'Search issues done. Spent time: {search_time} seconds')
-    if args.board_id:
-        sprint = jira.active_sprint(args.board_id)
+    show_total_time_spent(issues, args.board_id, args.sprint_id, jira)
+
+
+def show_total_time_spent(issues, board_id, sprint_id, jira):
+    if board_id:
+        sprint = jira.active_sprint(board_id)
         if not sprint:
             print('No active sprint')
             return
         time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
-    elif args.sprint_id:
-        sprint = jira.get_sprint(args.sprint_id)
+    elif sprint_id:
+        sprint = jira.get_sprint(sprint_id)
         time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
     else:
         time_spent_issues = issues
