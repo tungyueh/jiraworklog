@@ -2,7 +2,8 @@
 [![Build Status](https://api.travis-ci.com/tungyueh/jiraworklog.svg?branch=master)](https://travis-ci.com/tungyueh/jiraworklog)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
-Calculate work log from JIRA issue
+* Purpose: Calculate work log from JIRA issue in certain sprint
+* Motivation: The issue may move from sprint to sprint so we are hard to know how much time we spent on this issue.
 ## Usage
 ###  Find total time spent in hours
 python -m jiraworklog \<JIRA Server URL\> \<JQL\>
@@ -12,5 +13,7 @@ python -m jiraworklog \<JIRA Server URL\> \<JQL\> -b \<Board ID\>
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> -s \<Sprint ID\>
 ### Show N most time spent issues
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> --duration \<NUM\>
+### Show Help
+python -m jiraworklog -h
 ## netrc file format
 machine \<hostname\> login \<username\> password \<password\>
