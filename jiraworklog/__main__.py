@@ -23,21 +23,29 @@ def main():
     search_time = time.time() - start_time
     print(f'Search issues done. Find: {len(issues)} issues, '
           f'Spent time: {search_time} seconds')
-    show_total_time_spent(issues, args.board_id, args.sprint_id, jira)
+    time_spent_issues = make_time_spent_issues(args.board_id, issues, jira,
+                                               args.sprint_id)
+    show_total_time_spent(time_spent_issues)
 
 
-def show_total_time_spent(issues, board_id, sprint_id, jira):
+def make_time_spent_issues(board_id, issues, jira, sprint_id) -> \
+        List[IssueInterface]:
     if board_id:
         sprint = jira.active_sprint(board_id)
         if not sprint:
             print('No active sprint')
-            return
-        time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
+            time_spent_issues = []
+        else:
+            time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
     elif sprint_id:
         sprint = jira.get_sprint(sprint_id)
         time_spent_issues = make_issues_in_sprint(jira, sprint, issues)
     else:
         time_spent_issues = issues
+    return time_spent_issues
+
+
+def show_total_time_spent(time_spent_issues):
     total_seconds = sum([i.time_spent_in_second for i in time_spent_issues])
     print(f'Total time spent: {total_seconds / 3600} hour')
 
