@@ -5,6 +5,7 @@ from jiraworklog.issue import IssueInterface, Issue, IssueInSprint
 from jiraworklog.jira import Jira
 from jiraworklog.sprint import Sprint
 
+SECONDS_IN_MINUTE = 60
 SECONDS_IN_HOUR = 3600
 
 
@@ -27,7 +28,7 @@ def make_time_spent_issues(board_id, issues, jira, sprint_id) -> \
 
 def show_total_time_spent(time_spent_issues):
     total_seconds = sum([i.time_spent_in_second for i in time_spent_issues])
-    print(f'Total time spent: {total_seconds / SECONDS_IN_HOUR} hour')
+    print(f'Total time spent: {make_hh_mm(total_seconds)}')
 
 
 def show_all_time_spent_issues(time_spent_issues: List[IssueInterface]):
@@ -44,7 +45,7 @@ def sort_issue_by_time_spent(time_spent_issues: List[IssueInterface]):
 
 def make_issue_summary(issue):
     return f'{issue.key} {issue.assignee:12} ' \
-           f'{issue.time_spent_in_second / SECONDS_IN_HOUR:.2f}h ' \
+           f'{make_hh_mm(issue.time_spent_in_second)} ' \
            f'{issue.summary}'
 
 
@@ -62,3 +63,9 @@ def make_issues_in_sprint(jira: Jira, sprint: Sprint, issues: List[Issue]) -> \
         work_logs = jira.work_logs(issue)
         issues_in_sprint.append(IssueInSprint(issue, sprint, work_logs))
     return issues_in_sprint
+
+
+def make_hh_mm(seconds):
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f'{hours:2}h {minutes:2}m'
