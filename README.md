@@ -10,5 +10,7 @@ python -m jiraworklog \<JIRA Server URL\> \<JQL\>
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> -b \<Board ID\>
 ###  Find total time spent in hours in certain sprint
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> -s \<Sprint ID\>
+### Show N most time spent issues
+python -m jiraworklog \<JIRA Server URL\> \<JQL\> --duration \<NUM\>
 ## netrc file format
 machine \<hostname\> login \<username\> password \<password\>

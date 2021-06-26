@@ -8,6 +8,21 @@ from jiraworklog.worklog import WorkLog
 class IssueInterface(ABC):
     @property
     @abstractmethod
+    def key(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def assignee(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def summary(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def time_spent_in_second(self):
         raise NotImplementedError
 
@@ -21,20 +36,37 @@ class Issue(IssueInterface):
         return self._raw_issue.key
 
     @property
+    def assignee(self):
+        return self._raw_issue.fields.assignee.name
+
+    @property
+    def summary(self):
+        return self._raw_issue.fields.summary
+
+    @property
     def time_spent_in_second(self):
         if self._raw_issue.fields.timespent:
             return self._raw_issue.fields.timespent
         return 0
 
-    @property
-    def assignee(self):
-        return self._raw_issue.fields.assignee.name
-
 
 class IssueInSprint(IssueInterface):
-    def __init__(self, sprint: Sprint, work_logs: List[WorkLog]):
+    def __init__(self, issue: Issue, sprint: Sprint, work_logs: List[WorkLog]):
+        self._issue = issue
         self._sprint = sprint
         self._work_logs = work_logs
+
+    @property
+    def key(self):
+        return self._issue.key
+
+    @property
+    def assignee(self):
+        return self._issue.assignee
+
+    @property
+    def summary(self):
+        return self._issue.summary
 
     @property
     def time_spent_in_second(self) -> int:
