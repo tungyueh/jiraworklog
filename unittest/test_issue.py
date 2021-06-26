@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 from jiraworklog.issue import Issue, IssueInSprint
-from jiraworklog.__main__ import make_issues_in_sprint
+from jiraworklog.util import make_issues_in_sprint
 
 
 def mock_raw_issue(time_spent):
