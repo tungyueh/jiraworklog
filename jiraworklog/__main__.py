@@ -3,7 +3,8 @@ import time
 
 from jiraworklog.jira import make_jira
 from jiraworklog.util import make_time_spent_issues, show_total_time_spent, \
-    show_all_time_spent_issues, show_most_time_spent_issues
+    show_all_time_spent_issues, show_most_time_spent_issues, \
+    show_total_time_spent_by_assignee
 
 
 def main():
@@ -15,6 +16,7 @@ def main():
     parser.add_argument('--duration', dest='num_most_time_spend_issues',
                         type=int,
                         help='Show N most time spent issues (N=0 for all)')
+    parser.add_argument('--assignee', action='store_true')
 
     args = parser.parse_args()
 
@@ -28,7 +30,11 @@ def main():
     time_spent_issues = make_time_spent_issues(args.board_id, issues, jira,
                                                args.sprint_id)
     show_total_time_spent(time_spent_issues)
+    if args.assignee:
+        print('=== time spent by assignee ===')
+        show_total_time_spent_by_assignee(time_spent_issues)
     if args.num_most_time_spend_issues is not None:
+        print('=== most time spent issues ===')
         show_all_issues = args.num_most_time_spend_issues == 0
         if show_all_issues:
             show_all_time_spent_issues(time_spent_issues)

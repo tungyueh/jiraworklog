@@ -13,6 +13,8 @@ python -m jiraworklog \<JIRA Server URL\> \<JQL\> -b \<Board ID\>
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> -s \<Sprint ID\>
 ### Show N most time spent issues
 python -m jiraworklog \<JIRA Server URL\> \<JQL\> --duration \<NUM\>
+### Show total time spent by assignee
+python -m jiraworklog \<JIRA Server URL\> \<JQL\> --assignee
 ### Show Help
 python -m jiraworklog -h
 ## netrc file format

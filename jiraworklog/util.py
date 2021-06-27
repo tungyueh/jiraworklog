@@ -1,5 +1,6 @@
+from collections import defaultdict
 from operator import attrgetter
-from typing import List
+from typing import List, Dict
 
 from jiraworklog.issue import IssueInterface, Issue, IssueInSprint
 from jiraworklog.jira import Jira
@@ -26,9 +27,26 @@ def make_time_spent_issues(board_id, issues, jira, sprint_id) -> \
     return time_spent_issues
 
 
-def show_total_time_spent(time_spent_issues):
-    total_seconds = sum([i.time_spent_in_second for i in time_spent_issues])
-    print(f'Total time spent: {total_seconds / SECONDS_IN_HOUR:.2f} hours')
+def show_total_time_spent(issues: List[IssueInterface]):
+    total_seconds = sum_time_spent_in_seconds(issues)
+    print(make_total_time_spent_message(total_seconds))
+
+
+def sum_time_spent_in_seconds(issues: List[IssueInterface]) -> int:
+    return sum([i.time_spent_in_second for i in issues])
+
+
+def make_total_time_spent_message(total_seconds: int) -> str:
+    return f'Total time spent: {total_seconds / SECONDS_IN_HOUR:.2f} hours'
+
+
+def show_total_time_spent_by_assignee(issues: List[IssueInterface]):
+    assignee_time_spent: Dict[str, int] = defaultdict(int)
+    for issue in issues:
+        assignee_time_spent[issue.assignee] += issue.time_spent_in_second
+    for assignee, total_seconds in assignee_time_spent.items():
+        total_time_spent_msg = make_total_time_spent_message(total_seconds)
+        print(f'{assignee:12} {total_time_spent_msg}')
 
 
 def show_all_time_spent_issues(time_spent_issues: List[IssueInterface]):
