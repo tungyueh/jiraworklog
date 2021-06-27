@@ -28,7 +28,7 @@ def make_time_spent_issues(board_id, issues, jira, sprint_id) -> \
 
 def show_total_time_spent(time_spent_issues):
     total_seconds = sum([i.time_spent_in_second for i in time_spent_issues])
-    print(f'Total time spent: {make_hh_mm(total_seconds)}')
+    print(f'Total time spent: {total_seconds / SECONDS_IN_HOUR:.2f} hours')
 
 
 def show_all_time_spent_issues(time_spent_issues: List[IssueInterface]):
