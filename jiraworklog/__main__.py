@@ -24,7 +24,7 @@ def main():
     issues = jira.search_issues(args.jql)
     search_time = time.time() - start_time
     print(f'Search issues done. Find: {len(issues)} issues, '
-          f'Spent time: {search_time} seconds')
+          f'Spent time: {search_time:.2f} seconds')
     time_spent_issues = make_time_spent_issues(args.board_id, issues, jira,
                                                args.sprint_id)
     show_total_time_spent(time_spent_issues)
