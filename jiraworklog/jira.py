@@ -17,7 +17,7 @@ class Jira:
 
     def search_issues(self, jql) -> List[Issue]:
         issues = []
-        for issue in self._raw_jira.search_issues(jql):
+        for issue in self._raw_jira.search_issues(jql, maxResults=1000):
             issues.append(Issue(issue))
         return issues
 
