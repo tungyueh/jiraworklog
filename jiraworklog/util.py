@@ -34,7 +34,8 @@ def show_total_time_spent(time_spent_issues):
 def show_all_time_spent_issues(time_spent_issues: List[IssueInterface]):
     issues = sort_issue_by_time_spent(time_spent_issues)
     for issue in issues:
-        print(make_issue_summary(issue))
+        if issue.time_spent_in_second:
+            print(make_issue_summary(issue))
 
 
 def sort_issue_by_time_spent(time_spent_issues: List[IssueInterface]):
@@ -53,7 +54,8 @@ def show_most_time_spent_issues(time_spent_issues: List[IssueInterface],
                                 num_most_time_spend_issues: int):
     issues = sort_issue_by_time_spent(time_spent_issues)
     for issue in issues[:num_most_time_spend_issues]:
-        print(make_issue_summary(issue))
+        if issue.time_spent_in_second:
+            print(make_issue_summary(issue))
 
 
 def make_issues_in_sprint(jira: Jira, sprint: Sprint, issues: List[Issue]) -> \
