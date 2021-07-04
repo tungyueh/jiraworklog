@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from jiraworklog.sprint import Sprint
 from jiraworklog.worklog import WorkLog
@@ -36,7 +36,9 @@ class Issue(IssueInterface):
         return self._raw_issue.key
 
     @property
-    def assignee(self):
+    def assignee(self) -> Optional[str]:
+        if self._raw_issue.fields.assignee is None:
+            return None
         return self._raw_issue.fields.assignee.name
 
     @property

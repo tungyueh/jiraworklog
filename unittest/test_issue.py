@@ -1,13 +1,7 @@
 from unittest.mock import MagicMock
 
-from jiraworklog.issue import Issue, IssueInSprint
+from jiraworklog.issue import Issue
 from jiraworklog.util import make_issues_in_sprint
-
-
-def mock_raw_issue(time_spent):
-    m = MagicMock()
-    m.fields.timespent = time_spent
-    return m
 
 
 def test_issue_no_timespent():
@@ -40,6 +34,33 @@ def test_work_log_in_future_sprint():
     issue = MagicMock()
     issues = make_issues_in_sprint(jira, sprint, [issue])
     assert 0 == sum_time_spent_in_issues(issues)
+
+
+def test_unassigned_issue():
+    issue = Issue(mock_raw_issue(assignee_name=None))
+    assert None is issue.assignee
+
+
+def test_assigned_issue():
+    assignee_name = 'AssigneeName'
+    issue = Issue(mock_raw_issue(assignee_name=assignee_name))
+    assert assignee_name == issue.assignee
+
+
+def mock_raw_issue(time_spent=None, assignee_name=None):
+    m = MagicMock()
+    m.fields.timespent = time_spent
+    if assignee_name:
+        m.fields.assignee = mock_assignee(assignee_name)
+    else:
+        m.fields.assignee = None
+    return m
+
+
+def mock_assignee(assignee_name):
+    assignee = MagicMock()
+    assignee.name = assignee_name
+    return assignee
 
 
 def sum_time_spent_in_issues(issues):
