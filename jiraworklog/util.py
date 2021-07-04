@@ -43,6 +43,8 @@ def make_total_time_spent_message(total_seconds: int) -> str:
 def show_total_time_spent_by_assignee(issues: List[IssueInterface]):
     assignee_time_spent: Dict[str, int] = defaultdict(int)
     for issue in issues:
+        if issue.time_spent_in_second == 0:
+            continue
         assignee_time_spent[issue.assignee] += issue.time_spent_in_second
     for assignee, total_seconds in assignee_time_spent.items():
         total_time_spent_msg = make_total_time_spent_message(total_seconds)
