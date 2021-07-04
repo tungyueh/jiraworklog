@@ -84,6 +84,8 @@ def make_issues_in_sprint(jira: Jira, sprint: Sprint, issues: List[Issue]) -> \
     for issue in issues:
         work_logs = jira.work_logs(issue)
         issues_in_sprint.append(IssueInSprint(issue, sprint, work_logs))
+        if len(issues_in_sprint) % 50 == 0:
+            print(f'Collect Work Log on {len(issues_in_sprint)} issues...')
     return issues_in_sprint
 
 
