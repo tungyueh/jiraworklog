@@ -16,3 +16,7 @@ class WorkLog:
     @property
     def time_spent_in_seconds(self) -> int:
         return self._raw_work_log.timeSpentSeconds
+
+    @property
+    def author_name(self) -> str:
+        return self._raw_work_log.author.name
