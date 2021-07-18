@@ -4,6 +4,10 @@
 
 * Purpose: Calculate work log from JIRA issue in certain sprint
 * Motivation: The issue may move from sprint to sprint so we are hard to know how much time we spent on this issue.
+* Ability:
+  * Get total time logged during sprint
+  * Get people total time logged during sprint
+  * Get most time spent issues during sprint
 ## Usage
 ###  Find total time spent in hours
 python -m jiraworklog \<JIRA Server URL\> \<JQL\>
