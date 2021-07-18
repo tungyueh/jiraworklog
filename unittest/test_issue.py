@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
 from jiraworklog.issue import Issue
-from jiraworklog.util import make_issues_in_sprint
+from jiraworklog.util import make_issue_work_logs_in_sprint_map, \
+    get_total_time_spent_in_seconds
 
 
 def test_issue_no_timespent():
@@ -18,21 +19,21 @@ def test_issue_timespent():
 def test_work_log_in_past_sprint():
     jira, sprint = mock_jira_and_sprint(['past'])
     issue = MagicMock()
-    issues = make_issues_in_sprint(jira, sprint, [issue])
+    issues = make_issue_work_logs_in_sprint_map(jira, [issue], sprint)
     assert 0 == sum_time_spent_in_issues(issues)
 
 
 def test_work_log_in_current_sprint():
     jira, sprint = mock_jira_and_sprint(['now'])
     issue = MagicMock()
-    issues = make_issues_in_sprint(jira, sprint, [issue])
+    issues = make_issue_work_logs_in_sprint_map(jira, [issue], sprint)
     assert TIME_SPENT_IN_SECONDS == sum_time_spent_in_issues(issues)
 
 
 def test_work_log_in_future_sprint():
     jira, sprint = mock_jira_and_sprint(['future'])
     issue = MagicMock()
-    issues = make_issues_in_sprint(jira, sprint, [issue])
+    issues = make_issue_work_logs_in_sprint_map(jira, [issue], sprint)
     assert 0 == sum_time_spent_in_issues(issues)
 
 
@@ -64,7 +65,10 @@ def mock_assignee(assignee_name):
 
 
 def sum_time_spent_in_issues(issues):
-    return sum([issue.time_spent_in_second for issue in issues])
+    total_seconds = 0
+    for work_logs in issues.values():
+        total_seconds += get_total_time_spent_in_seconds(work_logs)
+    return total_seconds
 
 
 TIME_SPENT_IN_SECONDS = 3600

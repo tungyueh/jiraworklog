@@ -1,6 +1,6 @@
 import unittest
 
-from jiraworklog.util import make_hh_mm, SECONDS_IN_MINUTE, SECONDS_IN_HOUR
+from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR
 
 
 class TestMakeHHMM(unittest.TestCase):
@@ -46,4 +46,4 @@ class TestMakeHHMM(unittest.TestCase):
 
 
 def make_seconds(num_hour, num_minute) -> int:
-    return num_hour * SECONDS_IN_HOUR + num_minute * SECONDS_IN_MINUTE
+    return num_hour * SECONDS_IN_HOUR + num_minute * 60

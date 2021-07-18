@@ -2,9 +2,10 @@ import argparse
 import time
 
 from jiraworklog.jira import make_jira
-from jiraworklog.util import make_time_spent_issues, show_total_time_spent, \
+from jiraworklog.util import make_issue_work_logs_map, show_total_time_spent, \
     show_all_time_spent_issues, show_most_time_spent_issues, \
-    show_total_time_spent_by_assignee
+    show_total_time_spent_by_assignee, get_sprint, \
+    make_issue_work_logs_in_sprint_map
 
 
 def main():
@@ -27,19 +28,27 @@ def main():
     search_time = time.time() - start_time
     print(f'Search issues done. Find: {len(issues)} issues, '
           f'Spent time: {search_time:.2f} seconds')
-    time_spent_issues = make_time_spent_issues(args.board_id, issues, jira,
-                                               args.sprint_id)
-    show_total_time_spent(time_spent_issues)
+
+    if args.board_id or args.sprint_id:
+        sprint = get_sprint(jira, args.board_id, args.sprint_id)
+        if not sprint:
+            print('No Sprint')
+            return
+        issue_work_logs_map = make_issue_work_logs_in_sprint_map(jira, issues,
+                                                                 sprint)
+    else:
+        issue_work_logs_map = make_issue_work_logs_map(jira, issues)
+    show_total_time_spent(issue_work_logs_map)
     if args.assignee:
         print('=== time spent by assignee ===')
-        show_total_time_spent_by_assignee(time_spent_issues)
+        show_total_time_spent_by_assignee(issue_work_logs_map)
     if args.num_most_time_spend_issues is not None:
         print('=== most time spent issues ===')
         show_all_issues = args.num_most_time_spend_issues == 0
         if show_all_issues:
-            show_all_time_spent_issues(time_spent_issues)
+            show_all_time_spent_issues(issue_work_logs_map)
         else:
-            show_most_time_spent_issues(time_spent_issues,
+            show_most_time_spent_issues(issue_work_logs_map,
                                         args.num_most_time_spend_issues)
 
 
