@@ -3,7 +3,7 @@ import time
 
 from jiraworklog.jira import make_jira
 from jiraworklog.util import make_issue_work_logs_map, show_total_time_spent, \
-    show_all_time_spent_issues, show_most_time_spent_issues, \
+    show_most_time_spent_issues, \
     show_total_time_spent_by_assignee, get_sprint, \
     make_issue_work_logs_in_sprint_map
 
@@ -14,8 +14,7 @@ def main():
     parser.add_argument('jql', help='Jira Query Language')
     parser.add_argument('-b', dest='board_id', help='Board ID')
     parser.add_argument('-s', dest='sprint_id', help='Sprint ID')
-    parser.add_argument('--duration', dest='num_most_time_spend_issues',
-                        type=int,
+    parser.add_argument('--duration', dest='num_issues', type=int,
                         help='Show N most time spent issues (N=0 for all)')
     parser.add_argument('--assignee', action='store_true')
 
@@ -44,14 +43,10 @@ def main():
     if args.assignee:
         print('=== time spent by assignee ===')
         show_total_time_spent_by_assignee(issue_work_logs_map)
-    if args.num_most_time_spend_issues is not None:
+    if args.num_issues is not None:
         print('=== most time spent issues ===')
-        show_all_issues = args.num_most_time_spend_issues == 0
-        if show_all_issues:
-            show_all_time_spent_issues(issue_work_logs_map)
-        else:
-            show_most_time_spent_issues(issue_work_logs_map,
-                                        args.num_most_time_spend_issues)
+        num_issues = args.num_issues if args.num_issues else len(issues)
+        show_most_time_spent_issues(issue_work_logs_map, num_issues)
 
 
 if __name__ == '__main__':

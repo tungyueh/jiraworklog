@@ -88,14 +88,6 @@ def get_assignee_time_spent_map(issue_map) -> AssigneeTimeSpentMap:
     return assignee_time_spent_map
 
 
-def show_all_time_spent_issues(issue_map: IssueWorkLogMap):
-    issue_time_spent_map = get_issue_time_spent_map(issue_map)
-    issue_time_spent_map = sort_issue_by_time_spent(issue_time_spent_map)
-    for issue, time_spent_in_second in issue_time_spent_map.items():
-        if time_spent_in_second:
-            print(make_issue_summary(issue, time_spent_in_second))
-
-
 def get_issue_time_spent_map(issue_map: IssueWorkLogMap) -> \
         IssueTimeSpentMap:
     issue_time_spent_map: IssueTimeSpentMap = {}
