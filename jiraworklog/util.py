@@ -1,7 +1,9 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from jiraworklog.issue import Issue
+from jiraworklog.jira import Jira
+from jiraworklog.sprint import Sprint
 from jiraworklog.worklog import WorkLog
 
 IssueTimeSpentMap = Dict[Issue, int]
@@ -11,7 +13,8 @@ IssueWorkLogMap = Dict[Issue, List[WorkLog]]
 SECONDS_IN_HOUR = 3600
 
 
-def get_sprint(jira, board_id, sprint_id):
+def get_sprint(jira: Jira, board_id: Optional[int],
+               sprint_id: Optional[int]) -> Optional[Sprint]:
     sprint = None
     if board_id:
         sprint = jira.active_sprint(board_id)
@@ -20,7 +23,8 @@ def get_sprint(jira, board_id, sprint_id):
     return sprint
 
 
-def make_issue_work_logs_map(jira, issues) -> IssueWorkLogMap:
+def make_issue_work_logs_map(jira: Jira, issues: List[Issue]) -> \
+        IssueWorkLogMap:
     issue_work_logs_map = {}
     for issue in issues:
         work_logs = jira.work_logs(issue)
