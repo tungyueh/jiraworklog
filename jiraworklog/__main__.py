@@ -29,11 +29,13 @@ def main():
     print(f'Search issues done. Find: {len(issues)} issues, '
           f'Spent time: {search_time:.2f} seconds')
 
-    if args.board_id or args.sprint_id:
-        sprint = get_sprint(jira, args.board_id, args.sprint_id)
-        if not sprint:
-            print('No Sprint')
-            return
+    sprint = get_sprint(jira, args.board_id, args.sprint_id)
+    work_log_only_in_sprint = args.board_id or args.sprint_id
+    if work_log_only_in_sprint and not sprint:
+        print('No Sprint')
+        return
+
+    if work_log_only_in_sprint:
         issue_work_logs_map = make_issue_work_logs_in_sprint_map(jira, issues,
                                                                  sprint)
     else:
