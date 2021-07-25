@@ -10,7 +10,7 @@ from jiraworklog.util import (make_issue_work_logs_map, get_total_time_spent,
                               sort_issue_by_time_spent, make_issue_summary)
 
 
-def main():  # pylint: disable=too-many-locals
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('server_url', help='Server URL')
     parser.add_argument('jql', help='Jira Query Language')
@@ -44,23 +44,27 @@ def main():  # pylint: disable=too-many-locals
     total_seconds = get_total_time_spent(issue_work_logs_map)
     print(make_total_time_spent_message(total_seconds))
     if args.assignee:
-        print('=== time spent by assignee ===')
-        assignee_map = get_assignee_time_spent_map(issue_work_logs_map)
-        for author_name, total_seconds in assignee_map.items():
-            total_time_spent_msg = make_total_time_spent_message(total_seconds)
-            print(f'{author_name:12} {total_time_spent_msg}')
+        show_time_spent_by_assignee(issue_work_logs_map)
     if args.num_issues is not None:
-        print('=== most time spent issues ===')
         num_issues = args.num_issues if args.num_issues else len(issues)
-        issue_time_spent_map = get_issue_time_spent_map(issue_work_logs_map)
-        issue_time_spent_map = sort_issue_by_time_spent(issue_time_spent_map)
-        count = 0
-        for issue, time_spent_in_second in issue_time_spent_map.items():
-            if count == num_issues:
-                return
-            count += 1
-            if time_spent_in_second:
-                print(make_issue_summary(issue, time_spent_in_second))
+        show_most_time_spent_issues(issue_work_logs_map, num_issues)
+
+
+def show_time_spent_by_assignee(issue_map):
+    print('=== time spent by assignee ===')
+    assignee_map = get_assignee_time_spent_map(issue_map)
+    for author_name, total_seconds in assignee_map.items():
+        total_time_spent_msg = make_total_time_spent_message(total_seconds)
+        print(f'{author_name:12} {total_time_spent_msg}')
+
+
+def show_most_time_spent_issues(issue_map, num_issues):
+    print('=== most time spent issues ===')
+    time_spent_map = get_issue_time_spent_map(issue_map)
+    time_spent_map = sort_issue_by_time_spent(time_spent_map)
+    for issue, time_spent in list(time_spent_map.items())[:num_issues]:
+        if time_spent:
+            print(make_issue_summary(issue, time_spent))
 
 
 if __name__ == '__main__':
