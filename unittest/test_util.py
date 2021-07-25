@@ -1,10 +1,11 @@
 import unittest
 from unittest.mock import MagicMock
 
+SECONDS_IN_MINUTE = 60
 
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
     make_issue_work_logs_map, make_issue_work_logs_in_sprint_map, \
-    get_total_time_spent
+    get_total_time_spent, make_total_time_spent_message
 
 
 class TestGetSprint(unittest.TestCase):
@@ -110,19 +111,41 @@ def mock_sprint(start_time=None, end_time=None):
 class TestGetTotalTimeSpent(unittest.TestCase):
     def test_no_issue(self):
         total_seconds = get_total_time_spent({})
-        self.assertEqual(0 , total_seconds)
+        self.assertEqual(0, total_seconds)
 
     def test_issue_with_no_work_log(self):
         issue = mock_issue()
         total_seconds = get_total_time_spent({issue: []})
-        self.assertEqual(0 , total_seconds)
+        self.assertEqual(0, total_seconds)
 
     def test_issue_with_work_log(self):
         issue = mock_issue()
         time_spent_in_seconds = 1
         work_log = mock_work_log(time_spent_in_seconds=time_spent_in_seconds)
         total_seconds = get_total_time_spent({issue: [work_log]})
-        self.assertEqual(time_spent_in_seconds , total_seconds)
+        self.assertEqual(time_spent_in_seconds, total_seconds)
+
+
+class TestMakeTotalTimeSpentMessage(unittest.TestCase):
+    def test_0m(self):
+        message = make_total_time_spent_message(0)
+        self.assertEqual('Total time spent: 0.00 hours', message)
+
+    def test_10m(self):
+        message = make_total_time_spent_message(10 * SECONDS_IN_MINUTE)
+        self.assertEqual('Total time spent: 0.17 hours', message)
+
+    def test_15m(self):
+        message = make_total_time_spent_message(15 * SECONDS_IN_MINUTE)
+        self.assertEqual('Total time spent: 0.25 hours', message)
+
+    def test_30m(self):
+        message = make_total_time_spent_message(30 * SECONDS_IN_MINUTE)
+        self.assertEqual('Total time spent: 0.50 hours', message)
+
+    def test_1h(self):
+        message = make_total_time_spent_message(1 * SECONDS_IN_HOUR)
+        self.assertEqual('Total time spent: 1.00 hours', message)
 
 
 class TestMakeHHMM(unittest.TestCase):
@@ -168,4 +191,4 @@ class TestMakeHHMM(unittest.TestCase):
 
 
 def make_seconds(num_hour, num_minute) -> int:
-    return num_hour * SECONDS_IN_HOUR + num_minute * 60
+    return num_hour * SECONDS_IN_HOUR + num_minute * SECONDS_IN_MINUTE
