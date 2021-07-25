@@ -1,36 +1,27 @@
 import unittest
 from unittest.mock import MagicMock
 
-from jiraworklog.issue import Issue
 
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
-    make_issue_work_logs_map
+    make_issue_work_logs_map, make_issue_work_logs_in_sprint_map
 
 
 class TestGetSprint(unittest.TestCase):
     def test_board_id(self):
-        mock_jira = MagicMock()
-        expect_sprint = self.make_sprint()
-        mock_jira.active_sprint.return_value = expect_sprint
-        actual_sprint = get_sprint(jira=mock_jira, board_id=1, sprint_id=None)
+        expect_sprint = mock_sprint()
+        jira = mock_jira(active_sprint=expect_sprint)
+        actual_sprint = get_sprint(jira=jira, board_id=1, sprint_id=None)
         self.assertEqual(actual_sprint, expect_sprint)
 
     def test_sprint_id(self):
-        mock_jira = MagicMock()
-        expect_sprint = self.make_sprint()
-        mock_jira.get_sprint.return_value = expect_sprint
-        actual_sprint = get_sprint(jira=mock_jira, board_id=None, sprint_id=1)
+        expect_sprint = mock_sprint()
+        jira = mock_jira(get_sprint=expect_sprint)
+        actual_sprint = get_sprint(jira=jira, board_id=None, sprint_id=1)
         self.assertEqual(actual_sprint, expect_sprint)
 
     def test_no_board_id_and_sprint_id(self):
         sprint = get_sprint(jira=MagicMock(), board_id=None, sprint_id=None)
         self.assertIsNone(sprint)
-
-    def make_sprint(self):
-        s = MagicMock()
-        s.state = 'ACTIVE'
-        s.id = 0
-        return s
 
 
 class TestMakeIssueWorkLogsMap(unittest.TestCase):
@@ -39,24 +30,79 @@ class TestMakeIssueWorkLogsMap(unittest.TestCase):
         self.assertFalse(issues_map)
 
     def test_issue_with_no_work_log(self):
-        mock_jira = self.mock_jira(work_logs=[])
-        mock_issue = Issue(mock_raw_issue())
-        issues_map = make_issue_work_logs_map(jira=mock_jira,
-                                              issues=[mock_issue])
-        self.assertDictEqual({mock_issue: []}, issues_map)
+        jira = mock_jira(work_logs=[])
+        issue = mock_issue()
+        issues_map = make_issue_work_logs_map(jira=jira, issues=[issue])
+        self.assertDictEqual({issue: []}, issues_map)
 
     def test_issue_with_work_log(self):
-        mock_work_log = MagicMock()
-        mock_jira = self.mock_jira(work_logs=[mock_work_log])
-        mock_issue = Issue(mock_raw_issue())
-        issues_map = make_issue_work_logs_map(jira=mock_jira,
-                                              issues=[mock_issue])
-        self.assertDictEqual({mock_issue: [mock_work_log]}, issues_map)
+        work_log = mock_work_log()
+        jira = mock_jira(work_logs=[work_log])
+        issue = mock_issue()
+        issues_map = make_issue_work_logs_map(jira=jira, issues=[issue])
+        self.assertDictEqual({issue: [work_log]}, issues_map)
 
-    def mock_jira(self, work_logs):
-        mock_jira = MagicMock()
-        mock_jira.work_logs.return_value = work_logs
-        return mock_jira
+
+def mock_jira(active_sprint=None, get_sprint=None, work_logs=None):
+    jira = MagicMock()
+    jira.active_sprint.return_value = active_sprint
+    jira.get_sprint.return_value = get_sprint
+    jira.work_logs.return_value = work_logs
+    return jira
+
+
+def mock_issue():
+    issue = MagicMock()
+    return issue
+
+
+class TestMakeIssueWorkLogsInSprintMap(unittest.TestCase):
+    def test_no_issue(self):
+        issues_map = make_issue_work_logs_in_sprint_map(jira=MagicMock(),
+                                                        issues=[],
+                                                        sprint=MagicMock())
+        self.assertFalse(issues_map)
+
+    def test_issue_with_no_work_log(self):
+        jira = mock_jira(work_logs=[])
+        issue = mock_issue()
+        issues_map = make_issue_work_logs_in_sprint_map(jira=jira,
+                                                        issues=[issue],
+                                                        sprint=MagicMock())
+        self.assertDictEqual({issue: []}, issues_map)
+
+    def test_issue_with_in_sprint_work_log(self):
+        work_log = mock_work_log(logged_time=1)
+        sprint = mock_sprint(start_time=0, end_time=2)
+        jira = mock_jira(work_logs=[work_log])
+        issue = mock_issue()
+        issues_map = make_issue_work_logs_in_sprint_map(jira=jira,
+                                                        issues=[issue],
+                                                        sprint=sprint)
+        self.assertDictEqual({issue: [work_log]}, issues_map)
+
+    def test_issue_with_out_sprint_work_log(self):
+        work_log = mock_work_log(logged_time=0)
+        sprint = mock_sprint(start_time=1, end_time=2)
+        jira = mock_jira(work_logs=[work_log])
+        issue = mock_issue()
+        issues_map = make_issue_work_logs_in_sprint_map(jira=jira,
+                                                        issues=[issue],
+                                                        sprint=sprint)
+        self.assertDictEqual({issue: []}, issues_map)
+
+
+def mock_work_log(logged_time=None):
+    work_log = MagicMock()
+    work_log.logged_time = logged_time
+    return work_log
+
+
+def mock_sprint(start_time=None, end_time=None):
+    sprint = MagicMock()
+    sprint.start_time = start_time
+    sprint.end_time = end_time
+    return sprint
 
 
 class TestMakeHHMM(unittest.TestCase):
@@ -103,19 +149,3 @@ class TestMakeHHMM(unittest.TestCase):
 
 def make_seconds(num_hour, num_minute) -> int:
     return num_hour * SECONDS_IN_HOUR + num_minute * 60
-
-
-def mock_raw_issue(time_spent=None, assignee_name=None):
-    m = MagicMock()
-    m.fields.timespent = time_spent
-    if assignee_name:
-        m.fields.assignee = mock_assignee(assignee_name)
-    else:
-        m.fields.assignee = None
-    return m
-
-
-def mock_assignee(assignee_name):
-    assignee = MagicMock()
-    assignee.name = assignee_name
-    return assignee
