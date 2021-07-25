@@ -34,8 +34,8 @@ def make_issue_work_logs_map(jira: Jira, issues: List[Issue]) -> \
     return issue_work_logs_map
 
 
-def make_issue_work_logs_in_sprint_map(jira, issues, sprint) -> \
-        IssueWorkLogMap:
+def make_issue_work_logs_in_sprint_map(jira: Jira, issues: List[Issue],
+                                       sprint: Sprint) -> IssueWorkLogMap:
     issue_work_logs_in_sprint_map = {}
     issue_work_logs_map = make_issue_work_logs_map(jira, issues)
     for issue, work_logs in issue_work_logs_map.items():
@@ -44,7 +44,8 @@ def make_issue_work_logs_in_sprint_map(jira, issues, sprint) -> \
     return issue_work_logs_in_sprint_map
 
 
-def get_work_logs_in_sprint(sprint, work_logs) -> List[WorkLog]:
+def get_work_logs_in_sprint(sprint: Sprint, work_logs: List[WorkLog]) -> \
+        List[WorkLog]:
     work_logs_in_sprint = []
     for work_log in work_logs:
         if is_work_log_in_sprint(sprint, work_log):
@@ -52,17 +53,17 @@ def get_work_logs_in_sprint(sprint, work_logs) -> List[WorkLog]:
     return work_logs_in_sprint
 
 
-def is_work_log_in_sprint(sprint, work_log) -> bool:
+def is_work_log_in_sprint(sprint: Sprint, work_log: WorkLog) -> bool:
     sprint_start = sprint.start_time
     sprint_end = sprint.end_time + 86400
     return sprint_start <= work_log.logged_time <= sprint_end
 
 
-def show_total_time_spent(issue_map: IssueWorkLogMap):
+def get_total_time_spent(issue_map: IssueWorkLogMap) -> int:
     total_seconds = 0
     for work_logs in issue_map.values():
         total_seconds += get_total_time_spent_in_seconds(work_logs)
-    print(make_total_time_spent_message(total_seconds))
+    return total_seconds
 
 
 def get_total_time_spent_in_seconds(work_logs: List[WorkLog]) -> int:

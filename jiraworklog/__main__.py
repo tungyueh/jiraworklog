@@ -2,10 +2,10 @@ import argparse
 import time
 
 from jiraworklog.jira import make_jira
-from jiraworklog.util import make_issue_work_logs_map, show_total_time_spent, \
+from jiraworklog.util import make_issue_work_logs_map, get_total_time_spent, \
     show_most_time_spent_issues, \
     show_total_time_spent_by_assignee, get_sprint, \
-    make_issue_work_logs_in_sprint_map
+    make_issue_work_logs_in_sprint_map, make_total_time_spent_message
 
 
 def main():
@@ -39,7 +39,8 @@ def main():
                                                                  sprint)
     else:
         issue_work_logs_map = make_issue_work_logs_map(jira, issues)
-    show_total_time_spent(issue_work_logs_map)
+    total_seconds = get_total_time_spent(issue_work_logs_map)
+    print(make_total_time_spent_message(total_seconds))
     if args.assignee:
         print('=== time spent by assignee ===')
         show_total_time_spent_by_assignee(issue_work_logs_map)

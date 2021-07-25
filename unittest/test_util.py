@@ -3,7 +3,8 @@ from unittest.mock import MagicMock
 
 
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
-    make_issue_work_logs_map, make_issue_work_logs_in_sprint_map
+    make_issue_work_logs_map, make_issue_work_logs_in_sprint_map, \
+    get_total_time_spent
 
 
 class TestGetSprint(unittest.TestCase):
@@ -92,9 +93,10 @@ class TestMakeIssueWorkLogsInSprintMap(unittest.TestCase):
         self.assertDictEqual({issue: []}, issues_map)
 
 
-def mock_work_log(logged_time=None):
+def mock_work_log(logged_time=None, time_spent_in_seconds=None):
     work_log = MagicMock()
     work_log.logged_time = logged_time
+    work_log.time_spent_in_seconds = time_spent_in_seconds
     return work_log
 
 
@@ -103,6 +105,24 @@ def mock_sprint(start_time=None, end_time=None):
     sprint.start_time = start_time
     sprint.end_time = end_time
     return sprint
+
+
+class TestGetTotalTimeSpent(unittest.TestCase):
+    def test_no_issue(self):
+        total_seconds = get_total_time_spent({})
+        self.assertEqual(0 , total_seconds)
+
+    def test_issue_with_no_work_log(self):
+        issue = mock_issue()
+        total_seconds = get_total_time_spent({issue: []})
+        self.assertEqual(0 , total_seconds)
+
+    def test_issue_with_work_log(self):
+        issue = mock_issue()
+        time_spent_in_seconds = 1
+        work_log = mock_work_log(time_spent_in_seconds=time_spent_in_seconds)
+        total_seconds = get_total_time_spent({issue: [work_log]})
+        self.assertEqual(time_spent_in_seconds , total_seconds)
 
 
 class TestMakeHHMM(unittest.TestCase):
