@@ -6,7 +6,8 @@ SECONDS_IN_MINUTE = 60
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
     make_issue_work_logs_map, make_issue_work_logs_in_sprint_map, \
     get_total_time_spent, make_total_time_spent_message, \
-    get_assignee_time_spent_map
+    get_assignee_time_spent_map, get_issue_time_spent_map, \
+    sort_issue_by_time_spent, make_issue_summary
 
 
 class TestGetSprint(unittest.TestCase):
@@ -185,6 +186,41 @@ class TestMakeTotalTimeSpentMessage(unittest.TestCase):
     def test_1h(self):
         message = make_total_time_spent_message(1 * SECONDS_IN_HOUR)
         self.assertEqual('Total time spent: 1.00 hours', message)
+
+
+class TestGetIssueTimeSpentMap(unittest.TestCase):
+    def test_no_issue(self):
+        issue_work_log_map = {}
+        issue_time_spent_map = get_issue_time_spent_map(issue_work_log_map)
+        self.assertFalse(issue_time_spent_map)
+
+    def test_issue_with_no_work_log(self):
+        issue = mock_issue()
+        issue_work_log_map = {issue: []}
+        issue_time_spent_map = get_issue_time_spent_map(issue_work_log_map)
+        self.assertDictEqual({issue: 0}, issue_time_spent_map)
+
+    def test_issue_with_work_log(self):
+        issue = mock_issue()
+        work_log = mock_work_log(time_spent_in_seconds=1)
+        issue_work_log_map = {issue: [work_log]}
+        issue_time_spent_map = get_issue_time_spent_map(issue_work_log_map)
+        self.assertDictEqual({issue: 1}, issue_time_spent_map)
+
+
+class TestSortIssueByTimeSpent(unittest.TestCase):
+    def test_no_issue(self):
+        issue_map = {}
+        sorted_issue_map = sort_issue_by_time_spent(issue_map)
+        self.assertFalse(sorted_issue_map)
+
+    def test_two_issue(self):
+        issue_one = mock_issue()
+        issue_two = mock_issue()
+        issue_map = {issue_one: 1, issue_two: 2}
+        sorted_issue_map = sort_issue_by_time_spent(issue_map)
+        excpect_issue_map = {issue_two: 2, issue_one: 1}
+        self.assertDictEqual(excpect_issue_map, sorted_issue_map)
 
 
 class TestMakeHHMM(unittest.TestCase):

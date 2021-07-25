@@ -2,14 +2,15 @@ import argparse
 import time
 
 from jiraworklog.jira import make_jira
-from jiraworklog.util import make_issue_work_logs_map, get_total_time_spent, \
-    show_most_time_spent_issues, \
-    get_sprint, \
-    make_issue_work_logs_in_sprint_map, make_total_time_spent_message, \
-    get_assignee_time_spent_map
+from jiraworklog.util import (make_issue_work_logs_map, get_total_time_spent,
+                              get_sprint, make_issue_work_logs_in_sprint_map,
+                              make_total_time_spent_message,
+                              get_assignee_time_spent_map,
+                              get_issue_time_spent_map,
+                              sort_issue_by_time_spent, make_issue_summary)
 
 
-def main():
+def main():  # pylint: disable=too-many-locals
     parser = argparse.ArgumentParser()
     parser.add_argument('server_url', help='Server URL')
     parser.add_argument('jql', help='Jira Query Language')
@@ -51,7 +52,15 @@ def main():
     if args.num_issues is not None:
         print('=== most time spent issues ===')
         num_issues = args.num_issues if args.num_issues else len(issues)
-        show_most_time_spent_issues(issue_work_logs_map, num_issues)
+        issue_time_spent_map = get_issue_time_spent_map(issue_work_logs_map)
+        issue_time_spent_map = sort_issue_by_time_spent(issue_time_spent_map)
+        count = 0
+        for issue, time_spent_in_second in issue_time_spent_map.items():
+            if count == num_issues:
+                return
+            count += 1
+            if time_spent_in_second:
+                print(make_issue_summary(issue, time_spent_in_second))
 
 
 if __name__ == '__main__':

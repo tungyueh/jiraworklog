@@ -111,19 +111,6 @@ def make_issue_summary(issue, time_spent_in_second):
            f'{issue.summary}'
 
 
-def show_most_time_spent_issues(issue_map: IssueWorkLogMap,
-                                num_most_time_spend_issues: int):
-    issue_time_spent_map = get_issue_time_spent_map(issue_map)
-    issue_time_spent_map = sort_issue_by_time_spent(issue_time_spent_map)
-    count = 0
-    for issue, time_spent_in_second in issue_time_spent_map.items():
-        if count == num_most_time_spend_issues:
-            return
-        count += 1
-        if time_spent_in_second:
-            print(make_issue_summary(issue, time_spent_in_second))
-
-
 def make_hh_mm(seconds):
     hours, remainder = divmod(seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
