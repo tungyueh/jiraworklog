@@ -5,7 +5,8 @@ SECONDS_IN_MINUTE = 60
 
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
     make_issue_work_logs_map, make_issue_work_logs_in_sprint_map, \
-    get_total_time_spent, make_total_time_spent_message
+    get_total_time_spent, make_total_time_spent_message, \
+    get_assignee_time_spent_map
 
 
 class TestGetSprint(unittest.TestCase):
@@ -94,10 +95,12 @@ class TestMakeIssueWorkLogsInSprintMap(unittest.TestCase):
         self.assertDictEqual({issue: []}, issues_map)
 
 
-def mock_work_log(logged_time=None, time_spent_in_seconds=None):
+def mock_work_log(logged_time=None, time_spent_in_seconds=None,
+                  author_name=None):
     work_log = MagicMock()
     work_log.logged_time = logged_time
     work_log.time_spent_in_seconds = time_spent_in_seconds
+    work_log.author_name = author_name
     return work_log
 
 
@@ -124,6 +127,42 @@ class TestGetTotalTimeSpent(unittest.TestCase):
         work_log = mock_work_log(time_spent_in_seconds=time_spent_in_seconds)
         total_seconds = get_total_time_spent({issue: [work_log]})
         self.assertEqual(time_spent_in_seconds, total_seconds)
+
+
+class TestGetAssigneeTimeSpentMap(unittest.TestCase):
+    def setUp(self) -> None:
+        self.author_one_name = 'foo'
+        self.author_two_name = 'bar'
+        self.time_spent = 1
+
+    def test_one_author_with_one_work_log(self):
+        expect_assignee_map = {self.author_one_name: self.time_spent}
+        work_log = mock_work_log(author_name=self.author_one_name,
+                                 time_spent_in_seconds=self.time_spent)
+        issue_map = {MagicMock(): [work_log]}
+        actual_assignee_map = get_assignee_time_spent_map(issue_map)
+        self.assertDictEqual(expect_assignee_map, actual_assignee_map)
+
+    def test_one_author_with_two_work_log(self):
+        expect_assignee_map = {self.author_one_name: self.time_spent * 2}
+        work_log_one = mock_work_log(author_name=self.author_one_name,
+                                     time_spent_in_seconds=self.time_spent)
+        work_log_two = mock_work_log(author_name=self.author_one_name,
+                                     time_spent_in_seconds=self.time_spent)
+        issue_map = {MagicMock(): [work_log_one, work_log_two]}
+        actual_assignee_map = get_assignee_time_spent_map(issue_map)
+        self.assertDictEqual(expect_assignee_map, actual_assignee_map)
+
+    def test_two_author(self):
+        expect_assignee_map = {self.author_one_name: self.time_spent,
+                               self.author_two_name: self.time_spent}
+        work_log_one = mock_work_log(author_name=self.author_one_name,
+                                     time_spent_in_seconds=self.time_spent)
+        work_log_two = mock_work_log(author_name=self.author_two_name,
+                                     time_spent_in_seconds=self.time_spent)
+        issue_map = {MagicMock(): [work_log_one, work_log_two]}
+        actual_assignee_map = get_assignee_time_spent_map(issue_map)
+        self.assertDictEqual(expect_assignee_map, actual_assignee_map)
 
 
 class TestMakeTotalTimeSpentMessage(unittest.TestCase):

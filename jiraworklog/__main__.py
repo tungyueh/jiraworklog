@@ -4,8 +4,9 @@ import time
 from jiraworklog.jira import make_jira
 from jiraworklog.util import make_issue_work_logs_map, get_total_time_spent, \
     show_most_time_spent_issues, \
-    show_total_time_spent_by_assignee, get_sprint, \
-    make_issue_work_logs_in_sprint_map, make_total_time_spent_message
+    get_sprint, \
+    make_issue_work_logs_in_sprint_map, make_total_time_spent_message, \
+    get_assignee_time_spent_map
 
 
 def main():
@@ -43,7 +44,10 @@ def main():
     print(make_total_time_spent_message(total_seconds))
     if args.assignee:
         print('=== time spent by assignee ===')
-        show_total_time_spent_by_assignee(issue_work_logs_map)
+        assignee_map = get_assignee_time_spent_map(issue_work_logs_map)
+        for author_name, total_seconds in assignee_map.items():
+            total_time_spent_msg = make_total_time_spent_message(total_seconds)
+            print(f'{author_name:12} {total_time_spent_msg}')
     if args.num_issues is not None:
         print('=== most time spent issues ===')
         num_issues = args.num_issues if args.num_issues else len(issues)

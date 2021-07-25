@@ -77,14 +77,8 @@ def make_total_time_spent_message(total_seconds: int) -> str:
     return f'Total time spent: {total_seconds / SECONDS_IN_HOUR:.2f} hours'
 
 
-def show_total_time_spent_by_assignee(issue_map: IssueWorkLogMap):
-    assignee_time_spent_map = get_assignee_time_spent_map(issue_map)
-    for author_name, total_seconds in assignee_time_spent_map.items():
-        total_time_spent_msg = make_total_time_spent_message(total_seconds)
-        print(f'{author_name:12} {total_time_spent_msg}')
-
-
-def get_assignee_time_spent_map(issue_map) -> AssigneeTimeSpentMap:
+def get_assignee_time_spent_map(issue_map: IssueWorkLogMap) -> \
+        AssigneeTimeSpentMap:
     assignee_time_spent_map: AssigneeTimeSpentMap = defaultdict(int)
     for work_logs in issue_map.values():
         for work_log in work_logs:
