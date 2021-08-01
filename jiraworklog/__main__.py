@@ -9,7 +9,7 @@ from jiraworklog.util import (make_issue_work_logs_map, get_total_time_spent,
                               get_issue_time_spent_map,
                               sort_issue_by_time_spent, make_issue_summary,
                               get_epic_link_time_spent_map,
-                              get_issue_epic_link_map)
+                              get_issue_epic_link_map, get_epic_link_name_map)
 
 
 def main():
@@ -75,10 +75,15 @@ def show_most_time_spent_issues(issue_map, num_issues):
 def show_time_spent_by_epic_link(issue_map, jira):
     print('=== time spent by epic link ===')
     issue_epic_map = get_issue_epic_link_map(issue_map, jira)
+    epic_link_set = set(issue_epic_map.values())
+    epic_link_name_map = get_epic_link_name_map(epic_link_set, jira)
     epic_link_map = get_epic_link_time_spent_map(issue_map, issue_epic_map)
     for epic_link, total_seconds in epic_link_map.items():
         total_time_spent_msg = make_total_time_spent_message(total_seconds)
-        print(f'{epic_link:12} {total_time_spent_msg}')
+        epic_name = 'None'
+        if epic_link:
+            epic_name = epic_link_name_map[epic_link]
+        print(f'{epic_name:12} {total_time_spent_msg}')
 
 
 if __name__ == '__main__':

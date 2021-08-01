@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 
 from jiraworklog.issue import Issue, IssueType
 from jiraworklog.jira import Jira
@@ -126,10 +126,18 @@ def get_issue_epic_link_map(issues: List[Issue], jira: Jira) -> IssueEpicMap:
         if issue.type == IssueType.SUB_TASK:
             parent_issue = jira.get_issue(issue.parent_issue_key)
             epic_link = parent_issue.epic_link
-        if not epic_link:
-            epic_link = 'None'
         issue_epic_map[issue] = epic_link
     return issue_epic_map
+
+
+def get_epic_link_name_map(epic_links: Set[str], jira: Jira) -> Dict[str, str]:
+    epic_link_name_map = dict()
+    for epic_link in epic_links:
+        if not epic_link:
+            continue
+        issue = jira.get_issue(epic_link)
+        epic_link_name_map[epic_link] = issue.epic_name
+    return epic_link_name_map
 
 
 def get_epic_link_time_spent_map(issue_work_log_map: IssueWorkLogMap,

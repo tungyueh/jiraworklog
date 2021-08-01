@@ -1,6 +1,7 @@
 from typing import Optional
 
 EPIC_LINK_FIELD_NAME = 'customfield_11402'
+EPIC_NAME_FIELD_NAME = 'customfield_11404'
 
 
 class IssueType:
@@ -38,6 +39,11 @@ class Issue:
     def epic_link(self) -> str:
         epic_link = getattr(self._raw_issue.fields, EPIC_LINK_FIELD_NAME)
         return epic_link
+
+    @property
+    def epic_name(self) -> str:
+        epic_name = getattr(self._raw_issue.fields, EPIC_NAME_FIELD_NAME)
+        return epic_name
 
     @property
     def parent_issue_key(self) -> Optional[str]:
