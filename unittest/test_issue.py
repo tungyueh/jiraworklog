@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from jiraworklog.issue import Issue
 from jiraworklog.util import make_issue_work_logs_in_sprint_map, \
-    get_total_time_spent_in_seconds
+    sum_time_spent_from_work_logs
 
 
 def test_issue_no_timespent():
@@ -67,7 +67,7 @@ def mock_assignee(assignee_name):
 def sum_time_spent_in_issues(issues):
     total_seconds = 0
     for work_logs in issues.values():
-        total_seconds += get_total_time_spent_in_seconds(work_logs)
+        total_seconds += sum_time_spent_from_work_logs(work_logs)
     return total_seconds
 
 

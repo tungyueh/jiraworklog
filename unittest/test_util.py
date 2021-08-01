@@ -1,13 +1,16 @@
 import unittest
 from unittest.mock import MagicMock
 
+from jiraworklog.issue import IssueType
+
 SECONDS_IN_MINUTE = 60
 
 from jiraworklog.util import make_hh_mm, SECONDS_IN_HOUR, get_sprint, \
     make_issue_work_logs_map, make_issue_work_logs_in_sprint_map, \
     get_total_time_spent, make_total_time_spent_message, \
     get_assignee_time_spent_map, get_issue_time_spent_map, \
-    sort_issue_by_time_spent, make_issue_summary
+    sort_issue_by_time_spent, make_issue_summary, get_issue_epic_link_map, \
+    get_epic_link_time_spent_map
 
 
 class TestGetSprint(unittest.TestCase):
@@ -47,16 +50,20 @@ class TestMakeIssueWorkLogsMap(unittest.TestCase):
         self.assertDictEqual({issue: [work_log]}, issues_map)
 
 
-def mock_jira(active_sprint=None, get_sprint=None, work_logs=None):
+def mock_jira(active_sprint=None, get_sprint=None, work_logs=None,
+              get_issue=None):
     jira = MagicMock()
     jira.active_sprint.return_value = active_sprint
     jira.get_sprint.return_value = get_sprint
     jira.work_logs.return_value = work_logs
+    jira.get_issue.return_value = get_issue
     return jira
 
 
-def mock_issue():
+def mock_issue(epic_link=None, type=None):
     issue = MagicMock()
+    issue.epic_link = epic_link
+    issue.type = type
     return issue
 
 
@@ -267,3 +274,39 @@ class TestMakeHHMM(unittest.TestCase):
 
 def make_seconds(num_hour, num_minute) -> int:
     return num_hour * SECONDS_IN_HOUR + num_minute * SECONDS_IN_MINUTE
+
+
+class TestGetIssueEpicLinkMap(unittest.TestCase):
+    def test_issue_with_epic_link(self):
+        epic_link = 'foobar'
+        issue = mock_issue(epic_link=epic_link)
+        issue_epic_map = get_issue_epic_link_map([issue], None)
+        self.assertEqual(epic_link, issue_epic_map[issue])
+
+    def test_sub_task_issue_parent_with_epic_link(self):
+        issue = mock_issue(type=IssueType.SUB_TASK)
+        epic_link = 'foobar'
+        parent_issue = mock_issue(epic_link=epic_link)
+        jira = mock_jira(get_issue=parent_issue)
+        issue_epic_map = get_issue_epic_link_map([issue], jira)
+        self.assertEqual(epic_link, issue_epic_map[issue])
+
+
+class TestGetEpicLinkTimeSpentMap(unittest.TestCase):
+    def test_issue_without_epic_link(self):
+        issue = mock_issue()
+        issue_work_log_map = {issue: []}
+        issue_epic_map = {issue: None}
+        epic_link_map = get_epic_link_time_spent_map(issue_work_log_map,
+                                                     issue_epic_map)
+        self.assertDictEqual({None: 0}, epic_link_map)
+
+    def test_issue_with_epic_link(self):
+        issue = mock_issue()
+        issue_work_log_map = {issue: []}
+        epic_link = 'foobar'
+        issue_epic_map = {issue: epic_link}
+        epic_link_map = get_epic_link_time_spent_map(issue_work_log_map,
+                                                     issue_epic_map)
+        self.assertDictEqual({epic_link: 0}, epic_link_map)
+

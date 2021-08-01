@@ -21,6 +21,10 @@ class Jira:
             issues.append(Issue(issue))
         return issues
 
+    def get_issue(self, key) -> Issue:
+        raw_issue = self._raw_jira.issue(key)
+        return Issue(raw_issue)
+
     def work_logs(self, issue: Issue) -> List[WorkLog]:
         work_logs = []
         for work_log in self._raw_jira.worklogs(issue.key):

@@ -7,7 +7,9 @@ from jiraworklog.util import (make_issue_work_logs_map, get_total_time_spent,
                               make_total_time_spent_message,
                               get_assignee_time_spent_map,
                               get_issue_time_spent_map,
-                              sort_issue_by_time_spent, make_issue_summary)
+                              sort_issue_by_time_spent, make_issue_summary,
+                              get_epic_link_time_spent_map,
+                              get_issue_epic_link_map)
 
 
 def main():
@@ -19,6 +21,7 @@ def main():
     parser.add_argument('--duration', dest='num_issues', type=int,
                         help='Show N most time spent issues (N=0 for all)')
     parser.add_argument('--assignee', action='store_true')
+    parser.add_argument('--epic-link', action='store_true')
 
     args = parser.parse_args()
 
@@ -48,6 +51,8 @@ def main():
     if args.num_issues is not None:
         num_issues = args.num_issues if args.num_issues else len(issues)
         show_most_time_spent_issues(issue_work_logs_map, num_issues)
+    if args.epic_link:
+        show_time_spent_by_epic_link(issue_work_logs_map, jira)
 
 
 def show_time_spent_by_assignee(issue_map):
@@ -65,6 +70,15 @@ def show_most_time_spent_issues(issue_map, num_issues):
     for issue, time_spent in list(time_spent_map.items())[:num_issues]:
         if time_spent:
             print(make_issue_summary(issue, time_spent))
+
+
+def show_time_spent_by_epic_link(issue_map, jira):
+    print('=== time spent by epic link ===')
+    issue_epic_map = get_issue_epic_link_map(issue_map, jira)
+    epic_link_map = get_epic_link_time_spent_map(issue_map, issue_epic_map)
+    for epic_link, total_seconds in epic_link_map.items():
+        total_time_spent_msg = make_total_time_spent_message(total_seconds)
+        print(f'{epic_link:12} {total_time_spent_msg}')
 
 
 if __name__ == '__main__':

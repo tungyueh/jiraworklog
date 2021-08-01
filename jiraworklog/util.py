@@ -1,13 +1,15 @@
 from collections import defaultdict
 from typing import List, Dict, Optional
 
-from jiraworklog.issue import Issue
+from jiraworklog.issue import Issue, IssueType
 from jiraworklog.jira import Jira
 from jiraworklog.sprint import Sprint
 from jiraworklog.worklog import WorkLog
 
+IssueEpicMap = Dict[Issue, str]
 IssueTimeSpentMap = Dict[Issue, int]
 AssigneeTimeSpentMap = Dict[str, int]
+EpicLinkTimeSpentMap = Dict[str, int]
 IssueWorkLogMap = Dict[Issue, List[WorkLog]]
 
 SECONDS_IN_HOUR = 3600
@@ -62,11 +64,11 @@ def is_work_log_in_sprint(sprint: Sprint, work_log: WorkLog) -> bool:
 def get_total_time_spent(issue_map: IssueWorkLogMap) -> int:
     total_seconds = 0
     for work_logs in issue_map.values():
-        total_seconds += get_total_time_spent_in_seconds(work_logs)
+        total_seconds += sum_time_spent_from_work_logs(work_logs)
     return total_seconds
 
 
-def get_total_time_spent_in_seconds(work_logs: List[WorkLog]) -> int:
+def sum_time_spent_from_work_logs(work_logs: List[WorkLog]) -> int:
     total_seconds = 0
     for work_log in work_logs:
         total_seconds += work_log.time_spent_in_seconds
@@ -91,7 +93,7 @@ def get_issue_time_spent_map(issue_map: IssueWorkLogMap) -> \
         IssueTimeSpentMap:
     issue_time_spent_map: IssueTimeSpentMap = {}
     for issue, work_logs in issue_map.items():
-        total_seconds = get_total_time_spent_in_seconds(work_logs)
+        total_seconds = sum_time_spent_from_work_logs(work_logs)
         issue_time_spent_map[issue] = total_seconds
     return issue_time_spent_map
 
@@ -115,3 +117,27 @@ def make_hh_mm(seconds):
     hours, remainder = divmod(seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
     return f'{hours:2}h {minutes:2}m'
+
+
+def get_issue_epic_link_map(issues: List[Issue], jira: Jira) -> IssueEpicMap:
+    issue_epic_map = dict()
+    for issue in issues:
+        epic_link = issue.epic_link
+        if issue.type == IssueType.SUB_TASK:
+            parent_issue = jira.get_issue(issue.parent_issue_key)
+            epic_link = parent_issue.epic_link
+        if not epic_link:
+            epic_link = 'None'
+        issue_epic_map[issue] = epic_link
+    return issue_epic_map
+
+
+def get_epic_link_time_spent_map(issue_work_log_map: IssueWorkLogMap,
+                                 issue_epic_map: IssueEpicMap) -> \
+        EpicLinkTimeSpentMap:
+    epic_link_time_spent_map: EpicLinkTimeSpentMap = defaultdict(int)
+    for issue, work_logs in issue_work_log_map.items():
+        time_spent = sum_time_spent_from_work_logs(work_logs)
+        epic_link = issue_epic_map[issue]
+        epic_link_time_spent_map[epic_link] += time_spent
+    return epic_link_time_spent_map
